@@ -204,8 +204,10 @@
             font-family: 'Nanum Myeongjo', serif;
             white-space: pre-wrap;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-            max-width: 400px;
-            width: auto !important; /* 텍스트 박스에만 개별 적용 */
+            /* [수정] 가로 제한을 없애고 콘텐츠 크기에 맞게 늘어나도록 설정 */
+            max-width: none !important; 
+            width: max-content !important; 
+            min-width: 100px;
         }
 
         .floating-item:hover .floating-image, 
