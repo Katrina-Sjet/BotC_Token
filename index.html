@@ -242,6 +242,68 @@
             flex: none; 
         }
         .float-controls button:hover { background: #444 !important; border-color: var(--alive-border) !important; }
+
+        /* 우측 하단 사운드보드 패널 */
+#soundboard {
+    bottom: 20px;
+    right: 20px;
+    width: 340px; /* 5개 버튼이 들어갈 충분한 너비 */
+    padding: 12px;
+}
+
+.sound-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5열 균등 배치 */
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.sound-btn {
+    aspect-ratio: 1 / 1; /* 완벽한 정사각형 유지 */
+    padding: 0 !important;
+    border: 1px solid #444;
+    border-radius: 6px;
+    background-color: #222;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+/* 텍스트 가독성을 위한 하단 어두운 그라데이션 */
+.sound-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 40%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.sound-btn span {
+    position: relative;
+    z-index: 2;
+    font-size: 11px;
+    color: #fff;
+    padding-bottom: 4px;
+    font-family: 'Nanum Myeongjo', serif;
+    text-shadow: 1px 1px 2px #000;
+    pointer-events: none;
+}
+
+.sound-btn:hover {
+    border-color: var(--alive-border);
+    transform: translateY(-2px);
+}
+.sound-btn:active {
+    transform: translateY(0);
+}
     </style>
 </head>
 <body>
@@ -304,7 +366,13 @@
 </div>
 
 <div id="container"></div>
-
+    
+<div id="soundboard" class="panel">
+    <div class="frame-title">SOUNDBOARD</div>
+    <div id="sound-grid" class="sound-grid">
+        </div>
+</div>
+    
 <script>
     const container = document.getElementById('container');
     const TOKEN_SIZE = 140;          
@@ -320,6 +388,7 @@
     window.addEventListener('load', () => {
         loadData();
         updateDashboard();
+        initSoundboard(); // [추가] 사운드보드 버튼 생성
     });
 
     function loadData() {
@@ -746,6 +815,54 @@
         }
         saveData();
     }
+
+    /* =========================================
+   [사운드보드 데이터 및 렌더링 로직]
+   ========================================= */
+
+// 25개의 사운드 데이터를 담는 배열입니다. 실제 파일명에 맞춰 수정하십시오.
+const soundData = Array.from({ length: 25 }, (_, i) => {
+    const num = i + 1;
+    return {
+        id: `snd_${num}`,
+        name: `사운드 ${num}`,
+        // 임시 썸네일 이미지 (업로드 후 실제 이미지 링크로 교체)
+        img: `https://via.placeholder.com/100/333333/ffffff?text=${num}`,
+        // 임시 오디오 링크 (raw.githubusercontent.com 링크로 교체)
+        url: `https://raw.githubusercontent.com/Sjet7778/BotC_Token/main/sounds/sound${num}.wav`
+    };
+});
+
+function initSoundboard() {
+    const grid = document.getElementById('sound-grid');
+    grid.innerHTML = ''; // 초기화
+
+    soundData.forEach(data => {
+        const btn = document.createElement('button');
+        btn.className = 'sound-btn';
+        btn.style.backgroundImage = `url('${data.img}')`;
+        
+        // 클릭 시 오디오 재생
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            playSpecificSound(data.url);
+        };
+        
+        const label = document.createElement('span');
+        label.innerText = data.name;
+        btn.appendChild(label);
+        
+        grid.appendChild(btn);
+    });
+}
+
+function playSpecificSound(url) {
+    if (!url) return;
+    const audio = new Audio(url);
+    audio.volume = 0.5; // 필요시 0.0 ~ 1.0 사이로 조절하십시오.
+    audio.play().catch(e => console.error("오디오 재생 실패 (경로를 확인하십시오):", e));
+}
+    
 </script>
 </body>
 </html>
