@@ -883,7 +883,7 @@ function initSoundboard() {
 function playSpecificSound(url) {
     if (!url) return;
     const audio = new Audio(url);
-    audio.volume = 0.5;
+    audio.volume = 1;
     audio.play().catch(e => console.error("오디오 로드 또는 재생 실패 (GitHub 경로 확인 필요):", e));
 }
     
