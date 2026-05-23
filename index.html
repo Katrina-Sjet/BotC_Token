@@ -838,12 +838,14 @@ const soundData = Array.from({ length: 25 }, (_, i) => {
     // 정의된 이름이 있으면 쓰고, 없으면 빈 칸으로 둡니다.
     const name = soundNames[i] || ""; 
     
+// [보정] URL 경로를 만들 때만 줄바꿈 문자(\n)를 강제로 제거합니다.
+    const cleanFileName = name.replace(/\n/g, " ");
+    
     return {
         id: `snd_${i + 1}`,
-        name: name,
-        // 이름이 존재할 때만 규칙에 맞게 GitHub Raw 주소를 자동 생성합니다.
-        img: name ? `${GITHUB_RAW_BASE}/images/${encodeURIComponent(name)}.png` : "",
-        url: name ? `${GITHUB_RAW_BASE}/sounds/${encodeURIComponent(name)}.flac` : ""
+        name: name, // 화면 표시용 이름은 줄바꿈 유지
+        img: name ? `${GITHUB_RAW_BASE}/images/${encodeURIComponent(cleanFileName)}.png` : "",
+        url: name ? `${GITHUB_RAW_BASE}/sounds/${encodeURIComponent(cleanFileName)}.wav` : ""
     };
 });
 
