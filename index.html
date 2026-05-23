@@ -845,7 +845,7 @@ const soundData = Array.from({ length: 25 }, (_, i) => {
         id: `snd_${i + 1}`,
         name: name, // 화면 표시용 이름은 줄바꿈 유지
         img: name ? `${GITHUB_RAW_BASE}/images/${encodeURIComponent(cleanFileName)}.png` : "",
-        url: name ? `${GITHUB_RAW_BASE}/sounds/${encodeURIComponent(cleanFileName)}.wav` : ""
+        url: name ? `${GITHUB_RAW_BASE}/sounds/${encodeURIComponent(cleanFileName)}.flac` : ""
     };
 });
 
