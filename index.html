@@ -961,7 +961,7 @@ function stopAllSounds() {
         
         const fadeDuration = 400; // 0.4초 (400ms)
         const fadeSteps = 20;      // 20단계로 나누어 부드럽게 감쇄
-        const stepTime = fadeDuration / fadeSteps; // 50ms마다 실행
+        const stepTime = fadeDuration / fadeSteps; // 20ms마다 실행
         const volumeStep = audio.volume / fadeSteps; // 한 번에 줄일 볼륨량
         
         const fadeInterval = setInterval(() => {
