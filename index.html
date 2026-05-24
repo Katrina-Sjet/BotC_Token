@@ -304,6 +304,42 @@
 .sound-btn:active {
     transform: translateY(0);
 }
+
+        /* 사운드보드 헤더 및 중지 버튼 영역 */
+.soundboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+    padding-bottom: 6px;
+    margin-bottom: 4px;
+}
+
+.soundboard-header .frame-title {
+    margin: 0;
+    text-align: left;
+}
+
+.sound-stop-btn {
+    flex: none !important;
+    width: 24px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    font-size: 10px !important;
+    background-color: var(--btn-red) !important;
+    border-radius: 4px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    cursor: pointer;
+    border: none;
+    color: white;
+}
+
+.sound-stop-btn:hover {
+    filter: brightness(1.2);
+}
     </style>
 </head>
 <body>
@@ -368,9 +404,12 @@
 <div id="container"></div>
     
 <div id="soundboard" class="panel">
-    <div class="frame-title">SOUNDBOARD</div>
+    <div class="soundboard-header">
+        <div class="frame-title">SOUNDBOARD</div>
+        <button class="sound-stop-btn" onclick="stopAllSounds()" title="모든 사운드 중지">■</button>
+    </div>
     <div id="sound-grid" class="sound-grid">
-        </div>
+    </div>
 </div>
     
 <script>
@@ -882,11 +921,62 @@ function initSoundboard() {
     });
 }
 
+// 현재 재생 중인 모든 오디오 객체를 담는 배열
+let activeSounds = [];
+
 function playSpecificSound(url) {
     if (!url) return;
+    
     const audio = new Audio(url);
     audio.volume = 1;
-    audio.play().catch(e => console.error("오디오 로드 또는 재생 실패 (GitHub 경로 확인 필요):", e));
+    
+    // 1. 재생 인스턴스를 추적 배열에 등록
+    activeSounds.push(audio);
+    
+    // 2. 재생이 정상 종료되면 배열에서 자동 제거
+    audio.onended = () => {
+        activeSounds = activeSounds.filter(s => s !== audio);
+    };
+    
+    audio.play().catch(e => {
+        console.error("오디오 로드 또는 재생 실패 (GitHub 경로 확인 필요):", e);
+        // 오류 발생 시 배열에서 제거
+        activeSounds = activeSounds.filter(s => s !== audio);
+    });
+}
+
+// [추가] 모든 사운드를 일시에 정지시키는 함수
+// [수정] 1초 페이드아웃이 적용된 사운드 정지 함수
+function stopAllSounds() {
+    if (activeSounds.length === 0) return;
+    
+    // 현재 재생 중인 객체들을 복사해두고, 추적 배열은 즉시 비웁니다.
+    // (페이드아웃 도중 새로운 소리가 재생될 때 간섭을 막기 위함입니다)
+    const soundsToFade = [...activeSounds];
+    activeSounds = [];
+    
+    soundsToFade.forEach(audio => {
+        // 이미 멈췄거나 볼륨이 0인 경우 연산 제외
+        if (audio.paused || audio.volume === 0) return;
+        
+        const fadeDuration = 400; // 0.4초 (400ms)
+        const fadeSteps = 20;      // 20단계로 나누어 부드럽게 감쇄
+        const stepTime = fadeDuration / fadeSteps; // 50ms마다 실행
+        const volumeStep = audio.volume / fadeSteps; // 한 번에 줄일 볼륨량
+        
+        const fadeInterval = setInterval(() => {
+            // 현재 볼륨이 감소치보다 크면 계속 줄임
+            if (audio.volume - volumeStep > 0.01) {
+                audio.volume -= volumeStep;
+            } else {
+                // 볼륨이 0에 수렴하면 완전히 정지 후 타이머 해제
+                audio.volume = 0;
+                audio.pause();
+                audio.currentTime = 0;
+                clearInterval(fadeInterval);
+            }
+        }, stepTime);
+    });
 }
     
 </script>
